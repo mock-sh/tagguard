@@ -95,7 +95,7 @@ func TestCheckTagKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.key, func(t *testing.T) {
-			suggestion, known := rules.CheckTagKey(tt.key)
+			suggestion, known := rules.CheckTagKey(tt.key, nil)
 			if known != tt.wantKnown {
 				t.Errorf("CheckTagKey(%q): known=%v, want %v", tt.key, known, tt.wantKnown)
 			}

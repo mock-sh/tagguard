@@ -71,15 +71,21 @@ func init() {
 }
 
 // CheckTagKey returns whether the key is known.
+// extraKeys is a list of additional keys to treat as known (from config).
 // If unknown but close to a known key, returns a suggestion.
 //
 // Returns:
 //   - (suggestion, true)  → key is known, no issue
 //   - ("", false)         → key is unknown, no close match
 //   - (suggestion, false) → key is unknown, here's what you probably meant
-func CheckTagKey(key string) (suggestion string, known bool) {
+func CheckTagKey(key string, extraKeys []string) (suggestion string, known bool) {
 	if knownKeysSet[key] {
 		return "", true
+	}
+	for _, k := range extraKeys {
+		if k == key {
+			return "", true
+		}
 	}
 
 	// Typo threshold: allow 1 edit for very short keys, 2 for normal keys.
@@ -89,7 +95,13 @@ func CheckTagKey(key string) (suggestion string, known bool) {
 		threshold = 1
 	}
 
-	if match, ok := closestMatch(key, KnownTagKeys, threshold); ok {
+	// Build the full candidate list including extra keys
+	allKeys := KnownTagKeys
+	if len(extraKeys) > 0 {
+		allKeys = append(allKeys, extraKeys...)
+	}
+
+	if match, ok := closestMatch(key, allKeys, threshold); ok {
 		return match, false
 	}
 
